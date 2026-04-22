@@ -15,23 +15,9 @@ import {
   onAuthStateChanged 
 } from 'firebase/auth';
 import { 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  Users, 
-  Camera, 
-  Flower2, 
-  Check,
-  Mail,
-  ArrowRight,
-  MessageSquare,
-  CreditCard,
-  MessageCircle,
-  Settings,
-  X,
-  Trash2,
-  AlertCircle,
-  Lock
+  Clock, MapPin, Users, Camera, Flower2, Check,
+  Mail, ArrowRight, MessageSquare, CreditCard, MessageCircle,
+  Settings, X, Trash2, Lock
 } from 'lucide-react';
 
 // --- Firebase 配置 ---
@@ -50,9 +36,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// 修正路徑段數：替換斜線避免 Firestore 路徑錯誤
-const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'nako-mothers-day-2026';
-const sanitizedAppId = rawAppId.replace(/\//g, '_');
+// 嚴格使用環境提供的 appId，避免任何字元替換，以符合資料庫權限驗證
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'nako-mothers-day-2026';
 
 // --- 常數設定 ---
 const DATES = ['2026-05-08', '2026-05-09', '2026-05-10'];
@@ -69,19 +54,19 @@ const AdminLoginView = ({ adminPassInput, setAdminPassInput, handleAdminLogin, s
   <div className="min-h-screen flex items-center justify-center p-6 bg-[#FDFBF7]">
     <div className="bg-white p-10 border border-stone-100 shadow-sm max-w-sm w-full text-center">
       <Lock className="w-8 h-8 text-stone-200 mx-auto mb-6" />
-      <h3 className="font-serif text-xl mb-6 font-medium">管理員驗證</h3>
+      <h3 className="font-serif text-xl mb-6 font-medium text-stone-800">管理員驗證</h3>
       <form onSubmit={handleAdminLogin} className="space-y-4">
         <input 
           type="password"
           autoFocus
           value={adminPassInput}
           onChange={(e) => setAdminPassInput(e.target.value)}
-          className="w-full border-b border-stone-200 py-3 text-center outline-none focus:border-stone-800 transition-colors bg-transparent"
+          className="w-full border-b border-stone-200 py-3 text-center outline-none focus:border-stone-800 transition-colors bg-transparent font-sans"
           placeholder="ENTER PASSWORD"
         />
         <div className="flex gap-2">
-          <button type="button" onClick={() => setView('booking')} className="flex-1 text-[10px] tracking-widest uppercase text-stone-300 py-4">Cancel</button>
-          <button type="submit" className="flex-1 bg-stone-800 text-white text-[10px] tracking-widest uppercase py-4">Verify</button>
+          <button type="button" onClick={() => setView('booking')} className="flex-1 text-[10px] tracking-widest uppercase text-stone-300 py-4 hover:text-stone-500 font-sans">Cancel</button>
+          <button type="submit" className="flex-1 bg-stone-800 text-white text-[10px] tracking-widest uppercase py-4 font-sans">Verify</button>
         </div>
       </form>
     </div>
@@ -93,11 +78,11 @@ const AdminView = ({ bookedSlots, setView, deleteConfirmId, setDeleteConfirmId, 
   <div className="max-w-6xl mx-auto px-6 py-12 animate-in fade-in duration-500">
     <div className="flex items-center justify-between mb-12 border-b border-stone-200 pb-6">
       <h2 className="font-serif text-3xl tracking-tight text-stone-800">預約清單管理</h2>
-      <button onClick={() => setView('booking')} className="flex items-center gap-2 text-stone-400 hover:text-stone-800 transition-colors text-xs uppercase tracking-widest">
+      <button onClick={() => setView('booking')} className="flex items-center gap-2 text-stone-400 hover:text-stone-800 transition-colors text-xs uppercase tracking-widest font-sans">
         <X className="w-4 h-4" /> 關閉後台
       </button>
     </div>
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto bg-white p-4 shadow-sm border border-stone-100">
       <table className="w-full border-collapse min-w-[900px]">
         <thead>
           <tr className="text-[10px] uppercase tracking-[0.2em] text-stone-400 text-left border-b border-stone-100 font-sans">
@@ -122,25 +107,25 @@ const AdminView = ({ bookedSlots, setView, deleteConfirmId, setDeleteConfirmId, 
               </td>
               <td className="py-6 pr-8 align-top">
                 <div className="text-stone-600 text-xs font-sans">+{booking.extraPeople} 人</div>
-                <div className={`text-xs mt-1 ${booking.bouquetUpgrade ? 'text-[#D4A373] font-medium' : 'text-stone-300'}`}>
+                <div className={`text-xs mt-1 font-serif ${booking.bouquetUpgrade ? 'text-[#D4A373] font-medium' : 'text-stone-300'}`}>
                   {booking.bouquetUpgrade ? '升級加大花束' : '基本花束'}
                 </div>
               </td>
-              <td className="py-6 pr-8 align-top italic text-stone-500 text-xs leading-relaxed max-w-xs break-words">{booking.note || "無"}</td>
+              <td className="py-6 pr-8 align-top italic text-stone-500 text-xs leading-relaxed max-w-xs break-words font-serif">{booking.note || "無"}</td>
               <td className="py-6 align-top text-right">
                 {deleteConfirmId === booking.id ? (
-                  <div className="flex flex-col items-end gap-1 animate-in zoom-in">
-                    <button onClick={() => handleDelete(booking.id)} className="bg-red-500 text-white px-3 py-1 text-[10px] uppercase">確認刪除</button>
-                    <button onClick={() => setDeleteConfirmId(null)} className="text-stone-300 text-[10px] uppercase">取消</button>
+                  <div className="flex flex-col items-end gap-2 animate-in zoom-in">
+                    <button onClick={() => handleDelete(booking.id)} className="bg-red-500 text-white px-3 py-1 text-[10px] uppercase font-sans tracking-widest">確認刪除</button>
+                    <button onClick={() => setDeleteConfirmId(null)} className="text-stone-300 text-[10px] uppercase font-sans tracking-widest hover:text-stone-500">取消</button>
                   </div>
                 ) : (
-                  <button onClick={() => setDeleteConfirmId(booking.id)} className="text-stone-200 hover:text-red-400 p-2"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => setDeleteConfirmId(booking.id)} className="text-stone-300 hover:text-red-400 p-2 transition-colors"><Trash2 className="w-4 h-4" /></button>
                 )}
               </td>
             </tr>
           ))}
           {bookedSlots.length === 0 && (
-            <tr><td colSpan="5" className="py-20 text-center text-stone-300 text-xs tracking-widest italic">目前尚無預約資料</td></tr>
+            <tr><td colSpan="5" className="py-20 text-center text-stone-300 text-xs tracking-widest italic font-sans">目前尚無預約資料</td></tr>
           )}
         </tbody>
       </table>
@@ -167,6 +152,7 @@ export default function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // 1. 初始化驗證 (強制規則)
   useEffect(() => {
     const initAuth = async () => {
       try {
@@ -178,39 +164,50 @@ export default function App() {
       } catch (err) { console.error("Auth Error:", err); }
     };
     initAuth();
+    
     const unsubscribe = onAuthStateChanged(auth, setUser);
     return () => unsubscribe();
   }, []);
 
+  // 2. 獲取資料庫內容
   useEffect(() => {
-    if (!user) return;
-    const q = collection(db, 'artifacts', sanitizedAppId, 'public', 'data', 'bookings');
+    if (!user) return; // 確保在驗證後才執行查詢
+
+    // 嚴格遵守資料庫路徑規範
+    const q = collection(db, 'artifacts', appId, 'public', 'data', 'bookings');
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setBookedSlots(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (error) => console.error("Firestore Error:", error));
+    
     return () => unsubscribe();
   }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedTime || !name || !phone || !email) return;
+    if (!selectedTime || !name || !phone || !email || !user) return;
     setIsSubmitting(true);
+    
     try {
       const bookingId = `${selectedDate}_${selectedTime.replace(':', '')}`;
-      await setDoc(doc(db, 'artifacts', sanitizedAppId, 'public', 'data', 'bookings', bookingId), {
+      await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', bookingId), {
         date: selectedDate, time: selectedTime, name, phone, email, extraPeople, bouquetUpgrade, note,
         timestamp: new Date().toISOString(), userId: user.uid
       });
       setShowSuccess(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (err) { console.error(err); } finally { setIsSubmitting(false); }
+    } catch (err) { 
+      console.error("Submit Error:", err); 
+    } finally { 
+      setIsSubmitting(false); 
+    }
   };
 
   const handleDelete = async (id) => {
+    if (!user) return;
     try {
-      await deleteDoc(doc(db, 'artifacts', sanitizedAppId, 'public', 'data', 'bookings', id));
+      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id));
       setDeleteConfirmId(null);
-    } catch (err) { console.error(err); }
+    } catch (err) { console.error("Delete Error:", err); }
   };
 
   const handleAdminLogin = (e) => {
@@ -225,9 +222,9 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-[#4A4441] font-light">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@200;400;500&family=Outfit:wght@200;300;400&display=swap');
-        body { font-family: 'Outfit', sans-serif; }
-        .font-serif { font-family: 'Noto Serif TC', serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@200;300;400;500;600&family=Outfit:wght@200;300;400;500&display=swap');
+        body, .font-sans { font-family: 'Outfit', sans-serif !important; }
+        .font-serif { font-family: 'Noto Serif TC', serif !important; }
         .admin-trigger { opacity: 0.05; transition: opacity 0.3s; cursor: pointer; }
         .admin-trigger:hover { opacity: 0.5; }
       `}</style>
@@ -247,12 +244,12 @@ export default function App() {
                 <p className="font-serif text-3xl text-stone-800 mb-1 tracking-tight font-medium">NT $5,280</p>
                 <p className="text-[10px] text-stone-400 uppercase tracking-widest font-sans">Base Session Fee</p>
               </div>
-              <ul className="space-y-5 text-stone-500 text-sm leading-relaxed">
-                <li className="flex items-start gap-4"><Clock className="w-4 h-4 mt-0.5 text-stone-300" /><span>時間 ｜ 拍攝30分鐘</span></li>
-                <li className="flex items-start gap-4"><MapPin className="w-4 h-4 mt-0.5 text-stone-300" /><span>地點 ｜ nako工作室（台中西區）</span></li>
-                <li className="flex items-start gap-4"><Users className="w-4 h-4 mt-0.5 text-stone-300" /><div><p>人數 ｜ 4人為限</p><p className="text-[11px] text-stone-400 mt-1 font-sans">多1人 + NT$500，最多6人</p></div></li>
-                <li className="flex items-start gap-4"><Camera className="w-4 h-4 mt-0.5 text-stone-300" /><span>內容 ｜ 當天拍攝照片全給 (約100張)，雲端交件</span></li>
-                <li className="flex items-start gap-4"><Flower2 className="w-4 h-4 mt-0.5 text-stone-300" /><div><p>贈禮 ｜ by_deco 母親節花束 x1</p><p className="text-[11px] text-stone-400 mt-1 font-sans">加購：花束加大方案 + NT$600</p></div></li>
+              <ul className="space-y-5 text-stone-500 text-sm leading-relaxed font-serif">
+                <li className="flex items-start gap-4"><Clock className="w-4 h-4 mt-0.5 text-stone-300 shrink-0" /><span>時間 ｜ 拍攝30分鐘</span></li>
+                <li className="flex items-start gap-4"><MapPin className="w-4 h-4 mt-0.5 text-stone-300 shrink-0" /><span>地點 ｜ nako工作室（台中西區）</span></li>
+                <li className="flex items-start gap-4"><Users className="w-4 h-4 mt-0.5 text-stone-300 shrink-0" /><div><p>人數 ｜ 4人為限</p><p className="text-[11px] text-stone-400 mt-1 font-sans">多1人 + NT$500，最多6人</p></div></li>
+                <li className="flex items-start gap-4"><Camera className="w-4 h-4 mt-0.5 text-stone-300 shrink-0" /><span>內容 ｜ 當天拍攝照片全給 (約100張)，雲端交件</span></li>
+                <li className="flex items-start gap-4"><Flower2 className="w-4 h-4 mt-0.5 text-stone-300 shrink-0" /><div><p>贈禮 ｜ by_deco 母親節花束 x1</p><p className="text-[11px] text-stone-400 mt-1 font-sans">加購：花束加大方案 + NT$600</p></div></li>
               </ul>
             </div>
           </section>
@@ -273,12 +270,12 @@ export default function App() {
         <div className="lg:col-span-7">
           <div className="bg-white border border-stone-100 p-8 md:p-14 shadow-sm">
             {showSuccess ? (
-              <div className="text-center py-10 animate-in fade-in">
-                <div className="w-16 h-16 border border-stone-100 flex items-center justify-center mx-auto mb-8"><Check className="w-6 h-6 text-stone-400" /></div>
+              <div className="text-center py-10 animate-in fade-in zoom-in duration-500">
+                <div className="w-16 h-16 border border-stone-100 flex items-center justify-center mx-auto mb-8 rounded-full bg-stone-50"><Check className="w-6 h-6 text-stone-400" /></div>
                 <h3 className="font-serif text-2xl mb-4 text-stone-800">預約成功送出</h3>
-                <p className="text-stone-400 text-sm mb-10 font-serif">您的時段：{selectedDate} {selectedTime}<br/>請於 24 小時內完成匯款。</p>
-                <a href={LINE_OFFICIAL_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-[#06C755] text-white px-10 py-5 text-sm tracking-widest uppercase shadow-xl mb-10 font-sans font-medium"><MessageCircle className="w-5 h-5" /> 聯繫官方 LINE</a>
-                <div className="pt-10 border-t border-stone-50"><button onClick={() => window.location.reload()} className="text-[10px] tracking-widest uppercase text-stone-300">Back</button></div>
+                <p className="text-stone-400 text-sm mb-10 font-serif leading-relaxed">您的時段：<span className="text-stone-600 font-medium">{selectedDate} {selectedTime}</span><br/>請於 24 小時內完成匯款，以免時段被取消。</p>
+                <a href={LINE_OFFICIAL_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-[#06C755] text-white px-10 py-5 text-sm tracking-widest uppercase shadow-lg shadow-green-100 hover:opacity-90 transition-opacity mb-10 font-sans font-medium"><MessageCircle className="w-5 h-5" /> 聯繫官方 LINE</a>
+                <div className="pt-10 border-t border-stone-50"><button onClick={() => window.location.reload()} className="text-[10px] tracking-widest uppercase text-stone-300 hover:text-stone-500 transition-colors font-sans">Back To Home</button></div>
               </div>
             ) : (
               <>
@@ -286,8 +283,8 @@ export default function App() {
                   <label className="uppercase tracking-[0.3em] text-[9px] text-stone-400 block mb-6 font-sans">Step 01 / Date</label>
                   <div className="flex flex-wrap gap-3">
                     {DATES.map(date => (
-                      <button key={date} onClick={() => { setSelectedDate(date); setSelectedTime(null); }}
-                        className={`px-8 py-3 text-xs font-sans transition-all border ${selectedDate === date ? 'bg-[#4A4441] text-white' : 'border-stone-100 text-stone-400 hover:border-stone-300'}`}>
+                      <button key={date} type="button" onClick={() => { setSelectedDate(date); setSelectedTime(null); }}
+                        className={`px-8 py-3 text-xs font-sans transition-all border ${selectedDate === date ? 'bg-[#4A4441] text-white border-[#4A4441] shadow-md' : 'border-stone-100 text-stone-400 hover:border-stone-300'}`}>
                         {date.split('-')[1]} / {date.split('-')[2]}
                       </button>
                     ))}
@@ -299,8 +296,8 @@ export default function App() {
                     {TIME_SLOTS.map(time => {
                       const booked = bookedSlots.some(b => b.date === selectedDate && b.time === time);
                       return (
-                        <button key={time} disabled={booked} onClick={() => setSelectedTime(time)}
-                          className={`py-4 text-[10px] font-sans tracking-widest transition-all border ${booked ? 'bg-stone-50 text-stone-200 line-through' : selectedTime === time ? 'bg-[#E8D9D0] text-[#4A4441]' : 'border-stone-50 text-stone-400 hover:border-stone-200'}`}>
+                        <button key={time} type="button" disabled={booked} onClick={() => setSelectedTime(time)}
+                          className={`py-4 text-[10px] font-sans tracking-widest transition-all border ${booked ? 'bg-stone-50 text-stone-200 line-through border-stone-50 cursor-not-allowed' : selectedTime === time ? 'bg-[#E8D9D0] text-[#4A4441] border-[#E8D9D0]' : 'border-stone-50 text-stone-400 hover:border-stone-200'}`}>
                           {time}
                         </button>
                       );
@@ -308,20 +305,20 @@ export default function App() {
                   </div>
                 </div>
                 {selectedTime && (
-                  <form onSubmit={handleSubmit} className="pt-12 border-t border-stone-50 space-y-10 animate-in fade-in font-serif">
+                  <form onSubmit={handleSubmit} className="pt-12 border-t border-stone-50 space-y-10 animate-in fade-in slide-in-from-top-4 duration-500 font-serif">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="group"><label className="text-[9px] uppercase tracking-widest text-stone-300 font-sans">Name</label><input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full border-b border-stone-100 py-3 text-sm focus:border-stone-800 outline-none bg-transparent" placeholder="預約人姓名" /></div>
-                      <div className="group"><label className="text-[9px] uppercase tracking-widest text-stone-300 font-sans">Phone</label><input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full border-b border-stone-100 py-3 text-sm focus:border-stone-800 outline-none bg-transparent font-sans" placeholder="聯絡電話" /></div>
+                      <div className="group"><label className="text-[9px] uppercase tracking-widest text-stone-300 font-sans group-focus-within:text-stone-800 transition-colors">Name</label><input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full border-b border-stone-100 py-3 text-sm focus:border-stone-800 outline-none bg-transparent transition-colors" placeholder="預約人姓名" /></div>
+                      <div className="group"><label className="text-[9px] uppercase tracking-widest text-stone-300 font-sans group-focus-within:text-stone-800 transition-colors">Phone</label><input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full border-b border-stone-100 py-3 text-sm focus:border-stone-800 outline-none bg-transparent font-sans transition-colors" placeholder="聯絡電話" /></div>
                     </div>
-                    <div className="group"><label className="text-[9px] uppercase tracking-widest text-stone-300 font-sans">Email</label><div className="flex items-center border-b border-stone-100 py-3"><Mail className="w-3 h-3 text-stone-200 mr-3" /><input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full text-sm outline-none bg-transparent font-sans" placeholder="電子郵件" /></div></div>
+                    <div className="group"><label className="text-[9px] uppercase tracking-widest text-stone-300 font-sans group-focus-within:text-stone-800 transition-colors">Email</label><div className="flex items-center border-b border-stone-100 py-3"><Mail className="w-3 h-3 text-stone-200 mr-3" /><input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full text-sm outline-none bg-transparent font-sans" placeholder="電子郵件" /></div></div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-2"><label className="text-[9px] uppercase tracking-widest text-stone-400 font-sans">Participants</label><select value={extraPeople} onChange={(e) => setExtraPeople(parseInt(e.target.value))} className="w-full border border-stone-50 p-3 text-xs bg-stone-50 outline-none">
+                      <div className="space-y-3"><label className="text-[9px] uppercase tracking-widest text-stone-400 font-sans">Participants</label><select value={extraPeople} onChange={(e) => setExtraPeople(parseInt(e.target.value))} className="w-full border border-stone-100 p-3 text-xs bg-stone-50 outline-none font-serif text-stone-700 cursor-pointer">
                         <option value="0">4人 (基本)</option><option value="1">5人 (+NT$500)</option><option value="2">6人 (+NT$1,000)</option>
                       </select></div>
-                      <div className="space-y-2"><label className="text-[9px] uppercase tracking-widest text-stone-400 font-sans">Upgrade</label><div onClick={() => setBouquetUpgrade(!bouquetUpgrade)} className={`flex justify-between p-3 border cursor-pointer text-xs ${bouquetUpgrade ? 'border-stone-800 bg-stone-800 text-white' : 'border-stone-50 bg-stone-50 text-stone-400'}`}><span>花束加大</span><span>{bouquetUpgrade ? 'ADDED' : '+NT$600'}</span></div></div>
+                      <div className="space-y-3"><label className="text-[9px] uppercase tracking-widest text-stone-400 font-sans">Upgrade</label><div onClick={() => setBouquetUpgrade(!bouquetUpgrade)} className={`flex justify-between items-center p-3 border cursor-pointer text-xs transition-all ${bouquetUpgrade ? 'border-stone-800 bg-stone-800 text-white shadow-md' : 'border-stone-100 bg-stone-50 text-stone-400'}`}><span>花束加大</span><span className="text-[10px] tracking-widest font-sans">{bouquetUpgrade ? 'ADDED' : '+NT$600'}</span></div></div>
                     </div>
-                    <div className="group"><label className="text-[9px] uppercase tracking-widest text-stone-300 font-sans flex items-center gap-2"><MessageSquare className="w-3 h-3" /> Note</label><textarea value={note} onChange={(e) => setNote(e.target.value)} className="w-full mt-4 border border-stone-50 p-4 text-[12px] bg-stone-50 min-h-[100px] outline-none" placeholder="備註、許願平日時段..." /></div>
-                    <button type="submit" disabled={isSubmitting} className="w-full bg-[#4A4441] text-white py-6 text-[10px] tracking-[0.3em] uppercase hover:bg-stone-700 shadow-lg flex items-center justify-center gap-3 font-sans font-medium">{isSubmitting ? "Processing..." : "Confirm & Book Now"} <ArrowRight className="w-3 h-3" /></button>
+                    <div className="group"><label className="text-[9px] uppercase tracking-widest text-stone-300 font-sans flex items-center gap-2 group-focus-within:text-stone-800 transition-colors"><MessageSquare className="w-3 h-3" /> Note</label><textarea value={note} onChange={(e) => setNote(e.target.value)} className="w-full mt-4 border border-stone-100 p-4 text-[13px] bg-stone-50 min-h-[120px] outline-none focus:border-stone-300 transition-colors resize-none text-stone-700" placeholder="備註、許願平日時段..." /></div>
+                    <button type="submit" disabled={isSubmitting} className="w-full bg-[#4A4441] text-white py-6 text-[10px] tracking-[0.3em] uppercase hover:bg-stone-700 shadow-xl flex items-center justify-center gap-3 font-sans font-medium active:scale-[0.98] transition-all">{isSubmitting ? "Processing..." : "Confirm & Book Now"} <ArrowRight className="w-3 h-3" /></button>
                   </form>
                 )}
               </>

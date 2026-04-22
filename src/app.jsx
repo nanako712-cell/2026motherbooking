@@ -35,7 +35,6 @@ import {
 } from 'lucide-react';
 
 // --- Firebase 配置 ---
-// 請確保在此替換為您自己的 Firebase Config
 const firebaseConfig = typeof __firebase_config !== 'undefined' 
   ? JSON.parse(__firebase_config) 
   : {
@@ -184,30 +183,21 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Ensure we only fetch data AFTER the user is authenticated.
     if (!user) return;
-
-    // Use the rawAppId for Firestore paths in this environment
-    // Ensure the path strictly follows the required format: /artifacts/{appId}/public/data/{collectionName}
-    const q = collection(db, 'artifacts', rawAppId, 'public', 'data', 'bookings');
-    
+    const q = collection(db, 'artifacts', sanitizedAppId, 'public', 'data', 'bookings');
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setBookedSlots(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (error) => {
-      console.error("Firestore Error:", error);
-    });
-
+    }, (error) => console.error("Firestore Error:", error));
     return () => unsubscribe();
   }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedTime || !name || !phone || !email || !user) return;
+    if (!selectedTime || !name || !phone || !email) return;
     setIsSubmitting(true);
     try {
       const bookingId = `${selectedDate}_${selectedTime.replace(':', '')}`;
-      // Use the rawAppId for Firestore paths
-      await setDoc(doc(db, 'artifacts', rawAppId, 'public', 'data', 'bookings', bookingId), {
+      await setDoc(doc(db, 'artifacts', sanitizedAppId, 'public', 'data', 'bookings', bookingId), {
         date: selectedDate, time: selectedTime, name, phone, email, extraPeople, bouquetUpgrade, note,
         timestamp: new Date().toISOString(), userId: user.uid
       });
@@ -217,10 +207,8 @@ export default function App() {
   };
 
   const handleDelete = async (id) => {
-    if (!user) return;
     try {
-      // Use the rawAppId for Firestore paths
-      await deleteDoc(doc(db, 'artifacts', rawAppId, 'public', 'data', 'bookings', id));
+      await deleteDoc(doc(db, 'artifacts', sanitizedAppId, 'public', 'data', 'bookings', id));
       setDeleteConfirmId(null);
     } catch (err) { console.error(err); }
   };
@@ -289,7 +277,7 @@ export default function App() {
                 <div className="w-16 h-16 border border-stone-100 flex items-center justify-center mx-auto mb-8"><Check className="w-6 h-6 text-stone-400" /></div>
                 <h3 className="font-serif text-2xl mb-4 text-stone-800">預約成功送出</h3>
                 <p className="text-stone-400 text-sm mb-10 font-serif">您的時段：{selectedDate} {selectedTime}<br/>請於 24 小時內完成匯款。</p>
-                <a href={LINE_OFFICIAL_URL} target="_blank" className="inline-flex items-center gap-3 bg-[#06C755] text-white px-10 py-5 text-sm tracking-widest uppercase shadow-xl mb-10 font-sans font-medium"><MessageCircle className="w-5 h-5" /> 聯繫官方 LINE</a>
+                <a href={LINE_OFFICIAL_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-[#06C755] text-white px-10 py-5 text-sm tracking-widest uppercase shadow-xl mb-10 font-sans font-medium"><MessageCircle className="w-5 h-5" /> 聯繫官方 LINE</a>
                 <div className="pt-10 border-t border-stone-50"><button onClick={() => window.location.reload()} className="text-[10px] tracking-widest uppercase text-stone-300">Back</button></div>
               </div>
             ) : (
